@@ -4,11 +4,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useProducts } from "@/hooks/useProducts";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Upload, X, CheckCircle2 } from "lucide-react";
+import { Loader2, Upload, X, Images } from "lucide-react";
 import Image from "next/image";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -18,14 +18,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 // 1. تحديد القواعد (Schema)
 const productSchema = z.object({
   name: z.string().min(2, "اسم المنتج مطلوب"),
   price: z.string().min(1, "السعر مطلوب"),
   unit: z.string().min(1, "الوحدة مطلوبة"),
+  description: z.string().optional(),
   inStock: z.boolean().optional(),
-  image: z.any().optional(),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -41,9 +42,17 @@ const ProductForm = ({
   onSuccess,
   mode = "add",
 }: ProductFormProps) => {
-  const [preview, setPreview] = useState<string | null>(
-    initialData?.image || null,
-  );
+  // الصور الحالية (موجودة مسبقاً في حالة التعديل)
+  const existingImages: string[] =
+    initialData?.images ||
+    (initialData?.image ? [initialData.image] : []);
+
+  // ملفات الصور الجديدة المختارة
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  // معاينة الصور الجديدة
+  const [newPreviews, setNewPreviews] = useState<string[]>([]);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { addProduct, updateProduct, isMutating } = useProducts();
 
   const {
@@ -59,23 +68,31 @@ const ProductForm = ({
       name: initialData?.name || "",
       price: initialData?.price?.toString() || "",
       unit: initialData?.unit || "",
+      description: initialData?.description || "",
       inStock: initialData?.inStock ?? true,
     },
   });
 
-  const imageFile = watch("image");
   const inStockValue = watch("inStock");
 
+  // بناء معاينات الصور الجديدة عند تغيير selectedFiles
   useEffect(() => {
-    if (imageFile && imageFile.length > 0) {
-      const file = imageFile[0];
-      if (file instanceof File) {
-        const url = URL.createObjectURL(file);
-        setPreview(url);
-        return () => URL.revokeObjectURL(url);
-      }
-    }
-  }, [imageFile]);
+    const urls = selectedFiles.map((f) => URL.createObjectURL(f));
+    setNewPreviews(urls);
+    return () => urls.forEach((url) => URL.revokeObjectURL(url));
+  }, [selectedFiles]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const files = Array.from(e.target.files);
+    setSelectedFiles((prev) => [...prev, ...files]);
+    // إعادة ضبط الـ input لدعم إعادة الاختيار
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const removeNewFile = (idx: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== idx));
+  };
 
   const onSubmit = async (data: ProductFormValues) => {
     const formData = new FormData();
@@ -83,17 +100,25 @@ const ProductForm = ({
     formData.append("price", data.price);
     formData.append("unit", data.unit);
     formData.append("inStock", String(data.inStock));
+    if (data.description) formData.append("description", data.description);
 
-    if (data.image && data.image[0]) {
-      formData.append("image", data.image[0]);
-    }
+    // إرفاق الصور الجديدة المختارة
+    selectedFiles.forEach((file) => {
+      formData.append("images", file);
+    });
 
     if (mode === "add") {
+      if (selectedFiles.length === 0) {
+        alert("يرجى رفع صورة واحدة على الأقل");
+        return;
+      }
       addProduct(formData, { onSuccess });
     } else {
       updateProduct({ id: initialData._id, data: formData }, { onSuccess });
     }
   };
+
+  const hasAnyImage = existingImages.length > 0 || newPreviews.length > 0;
 
   return (
     <form
@@ -101,16 +126,16 @@ const ProductForm = ({
       className="space-y-4 pt-4 text-right"
       dir="rtl"
     >
+      {/* اسم المنتج */}
       <div className="space-y-2">
         <Label htmlFor="name">اسم المنتج</Label>
         <Input id="name" {...register("name")} placeholder="اسم المنتج" />
         {errors.name && (
-          <p className="text-xs text-red-500">
-            {errors.name.message as string}
-          </p>
+          <p className="text-xs text-red-500">{errors.name.message as string}</p>
         )}
       </div>
 
+      {/* السعر والوحدة */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="price">السعر</Label>
@@ -150,6 +175,19 @@ const ProductForm = ({
         </div>
       </div>
 
+      {/* الوصف */}
+      <div className="space-y-2">
+        <Label htmlFor="description">الوصف (اختياري)</Label>
+        <Textarea
+          id="description"
+          {...register("description")}
+          placeholder="أكتب وصفاً للمنتج..."
+          rows={2}
+          className="resize-none"
+        />
+      </div>
+
+      {/* التوفر */}
       <div className="flex items-center justify-between border p-3 rounded-lg bg-gray-50">
         <Label htmlFor="inStock" className="cursor-pointer">
           توفر المنتج في المتجر
@@ -162,45 +200,75 @@ const ProductForm = ({
         />
       </div>
 
+      {/* صور المنتج */}
       <div className="space-y-2">
-        <Label>صورة المنتج</Label>
-        {!preview ? (
-          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all">
-            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-              <Upload className="w-8 h-8 mb-2 text-gray-400" />
-              <p className="text-sm text-gray-500">اضغط لرفع صورة</p>
+        <Label className="flex items-center gap-2">
+          <Images className="w-4 h-4" />
+          صور المنتج
+          <span className="text-xs text-gray-400 font-normal">(يمكنك رفع أكثر من صورة)</span>
+        </Label>
+
+        {/* عرض الصور الحالية في وضع التعديل */}
+        {mode === "edit" && existingImages.length > 0 && (
+          <div>
+            <p className="text-xs text-gray-500 mb-2">الصور الحالية:</p>
+            <div className="flex gap-2 flex-wrap">
+              {existingImages.map((img, idx) => (
+                <div
+                  key={idx}
+                  className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-200"
+                >
+                  <Image src={img} alt={`صورة ${idx + 1}`} fill className="object-cover" />
+                </div>
+              ))}
             </div>
-            <input
-              type="file"
-              className="hidden"
-              accept="image/*"
-              {...register("image")}
-            />
-          </label>
-        ) : (
-          <div className="relative w-full h-40 rounded-lg overflow-hidden border">
-            <Image src={preview} alt="Preview" fill className="object-cover" />
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity text-white text-xs">
-              <CheckCircle2 className="w-4 h-4 text-green-400 ml-1" /> تم اختيار
-              الصورة
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                setPreview(null);
-                reset({ image: undefined });
-              }}
-              className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <p className="text-xs text-amber-600 mt-1">
+              * رفع صور جديدة سيستبدل الصور الحالية
+            </p>
           </div>
         )}
-        {errors.image && (
-          <p className="text-xs text-red-500">
-            {errors.image.message as string}
-          </p>
+
+        {/* عرض الصور الجديدة المختارة */}
+        {newPreviews.length > 0 && (
+          <div>
+            <p className="text-xs text-gray-500 mb-2">الصور المختارة:</p>
+            <div className="flex gap-2 flex-wrap">
+              {newPreviews.map((url, idx) => (
+                <div
+                  key={idx}
+                  className="relative w-16 h-16 rounded-lg overflow-hidden border border-indigo-200 group"
+                >
+                  <Image src={url} alt={`جديد ${idx + 1}`} fill className="object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeNewFile(idx)}
+                    className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                    aria-label="حذف الصورة"
+                  >
+                    <X className="w-4 h-4 text-white" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
+
+        {/* منطقة رفع الصور */}
+        <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-indigo-50/50 hover:border-indigo-300 transition-all">
+          <div className="flex flex-col items-center justify-center py-3">
+            <Upload className="w-6 h-6 mb-1 text-gray-400" />
+            <p className="text-sm text-gray-500">اضغط لإضافة صور</p>
+            <p className="text-xs text-gray-400">JPG, PNG, WebP مسموح بها</p>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            accept="image/*"
+            multiple
+            onChange={handleFileChange}
+          />
+        </label>
       </div>
 
       <Button

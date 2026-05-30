@@ -80,16 +80,21 @@ const ProductCard = ({
     >
       <div className="relative h-56 w-full overflow-hidden">
         <Image
-          src={product.image}
+          src={product.images?.[0] || product.image || ""}
           alt={product.name}
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
+          className="object-contain p-3 transition-transform duration-500 group-hover:scale-110"
         />
         {!product.inStock && (
           <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center">
             <span className="bg-red-500 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-lg">
               غير متوفر
             </span>
+          </div>
+        )}
+        {product.images?.length > 1 && (
+          <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
+            {product.images.length} صور
           </div>
         )}
         <div className="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full shadow-sm text-sm font-black text-indigo-700 border border-white/50">
