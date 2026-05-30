@@ -11,6 +11,13 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Upload, X, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
 import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // 1. تحديد القواعد (Schema)
 const productSchema = z.object({
@@ -121,7 +128,23 @@ const ProductForm = ({
         </div>
         <div className="space-y-2">
           <Label htmlFor="unit">الوحدة</Label>
-          <Input id="unit" {...register("unit")} placeholder="كيلو / قطعة" />
+          <Select
+            onValueChange={(val) => setValue("unit", val, { shouldValidate: true })}
+            defaultValue={watch("unit")}
+          >
+            <SelectTrigger id="unit" className="text-right flex-row-reverse">
+              <SelectValue placeholder="اختر الوحدة" />
+            </SelectTrigger>
+            <SelectContent dir="rtl">
+              <SelectItem value="كيلو">كيلو</SelectItem>
+              <SelectItem value="نصف كيلو">نصف كيلو</SelectItem>
+              <SelectItem value="ربع كيلو">ربع كيلو</SelectItem>
+              <SelectItem value="جرام">جرام</SelectItem>
+              <SelectItem value="قطعة">قطعة</SelectItem>
+              <SelectItem value="طبق">طبق</SelectItem>
+              <SelectItem value="لتر">لتر</SelectItem>
+            </SelectContent>
+          </Select>
           {errors.unit && (
             <p className="text-xs text-red-500">
               {errors.unit.message as string}
