@@ -129,7 +129,9 @@ const ProductForm = ({
         <div className="space-y-2">
           <Label htmlFor="unit">الوحدة</Label>
           <Select
-            onValueChange={(val) => setValue("unit", val, { shouldValidate: true })}
+            onValueChange={(val) =>
+              setValue("unit", val, { shouldValidate: true })
+            }
             defaultValue={watch("unit")}
           >
             <SelectTrigger id="unit" className="text-right flex-row-reverse">
@@ -137,12 +139,7 @@ const ProductForm = ({
             </SelectTrigger>
             <SelectContent dir="rtl">
               <SelectItem value="كيلو">كيلو</SelectItem>
-              <SelectItem value="نصف كيلو">نصف كيلو</SelectItem>
-              <SelectItem value="ربع كيلو">ربع كيلو</SelectItem>
-              <SelectItem value="جرام">جرام</SelectItem>
               <SelectItem value="قطعة">قطعة</SelectItem>
-              <SelectItem value="طبق">طبق</SelectItem>
-              <SelectItem value="لتر">لتر</SelectItem>
             </SelectContent>
           </Select>
           {errors.unit && (
