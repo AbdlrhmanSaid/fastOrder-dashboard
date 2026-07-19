@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import OrderDetailsPopUp from "@/components/admin/OrderDetailsPopUp";
+import GlobalSkeletonLoader from "@/components/admin/GlobalSkeletonLoader";
 
 const statusConfig: any = {
   معلق: { color: "bg-yellow-100 text-yellow-700", label: "معلق" },
@@ -66,15 +67,15 @@ export default function OrdersPage() {
   };
 
   if (isLoading)
-    return <div className="p-10 text-center">جاري تحميل الطلبات...</div>;
+    return <GlobalSkeletonLoader type="table" />;
 
   return (
-    <div className="p-6 space-y-6" dir="rtl">
+    <div className="space-y-8 animate-in fade-in duration-700" dir="rtl">
       {/* الرأس */}
-      <div className="flex justify-between items-start">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-800">إدارة الطلبات</h1>
-          <p className="text-slate-600 mt-2">
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">إدارة الطلبات</h1>
+          <p className="text-slate-500 mt-1 font-medium">
             عرض وتحديث حالة جميع الطلبات المستلمة
           </p>
         </div>
@@ -98,10 +99,10 @@ export default function OrdersPage() {
           <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
           <Input
             type="text"
-            placeholder="ابحث بالاسم، رقم الهاتف، رقم الطلب، أو المنطقة..."
+            placeholder="ابحث بالاسم، رقم الهاتف، رقم الطلب..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pr-10"
+            className="pr-10 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl"
           />
         </div>
 
@@ -109,57 +110,60 @@ export default function OrdersPage() {
         <div className="flex items-center gap-2 md:w-64">
           <Filter className="text-slate-400 h-4 w-4" />
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger>
+            <SelectTrigger className="bg-white border-slate-200 text-slate-900 rounded-xl">
               <SelectValue placeholder="تصفية حسب الحالة" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="الكل">جميع الحالات</SelectItem>
-              <SelectItem value="معلق">معلق</SelectItem>
-              <SelectItem value="يتم التحضير">يتم التحضير</SelectItem>
-              <SelectItem value="وصل">وصل</SelectItem>
-              <SelectItem value="ملغي">ملغي</SelectItem>
+            <SelectContent className="bg-white border-slate-200 text-slate-900 rounded-xl">
+              <SelectItem value="الكل" className="hover:bg-slate-50 focus:bg-slate-50">جميع الحالات</SelectItem>
+              <SelectItem value="معلق" className="hover:bg-slate-50 focus:bg-slate-50">معلق</SelectItem>
+              <SelectItem value="يتم التحضير" className="hover:bg-slate-50 focus:bg-slate-50">يتم التحضير</SelectItem>
+              <SelectItem value="وصل" className="hover:bg-slate-50 focus:bg-slate-50">وصل</SelectItem>
+              <SelectItem value="ملغي" className="hover:bg-slate-50 focus:bg-slate-50">ملغي</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
       {/* عداد النتائج */}
-      <div className="text-sm text-slate-600">
+      <div className="text-sm text-slate-500 font-medium">
         عرض {filteredOrders?.length || 0} من {orders?.length || 0} طلب
       </div>
 
       {/* جدول الطلبات */}
-      <div className="rounded-md border bg-white overflow-hidden">
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         <Table>
-          <TableHeader className="bg-slate-50">
-            <TableRow>
-              <TableHead className="text-right">رقم الطلب</TableHead>
-              <TableHead className="text-right">العميل</TableHead>
-              <TableHead className="text-right">التاريخ</TableHead>
-              <TableHead className="text-right">المنطقة</TableHead>
-              <TableHead className="text-right">الإجمالي</TableHead>
-              <TableHead className="text-right">الحالة</TableHead>
-              <TableHead className="text-center">التفاصيل</TableHead>
+          <TableHeader className="bg-slate-50 border-b border-slate-100">
+            <TableRow className="hover:bg-transparent border-slate-100">
+              <TableHead className="text-right font-bold text-slate-500">رقم الطلب</TableHead>
+              <TableHead className="text-right font-bold text-slate-500">العميل</TableHead>
+              <TableHead className="text-right font-bold text-slate-500">التاريخ</TableHead>
+              <TableHead className="text-right font-bold text-slate-500">المنطقة</TableHead>
+              <TableHead className="text-right font-bold text-slate-500">الإجمالي</TableHead>
+              <TableHead className="text-right font-bold text-slate-500">الحالة</TableHead>
+              <TableHead className="text-center font-bold text-slate-500">التفاصيل</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredOrders && filteredOrders.length > 0 ? (
               filteredOrders.map((order: any) => (
-                <TableRow key={order._id}>
-                  <TableCell className="font-mono text-xs">
+                <TableRow 
+                  key={order._id}
+                  className="hover:bg-slate-50/80 transition-all duration-300 border-slate-100 group"
+                >
+                  <TableCell className="font-mono text-sm text-slate-500">
                     {order.orderNumber}
                   </TableCell>
                   <TableCell>
-                    <div className="font-medium">{order.customerName}</div>
-                    <div className="text-xs text-slate-500">{order.phone}</div>
+                    <div className="font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">{order.customerName}</div>
+                    <div className="text-xs text-slate-500 font-medium">{order.phone}</div>
                   </TableCell>
-                  <TableCell className="text-xs">
+                  <TableCell className="text-xs text-slate-500">
                     {format(new Date(order.createdAt), "dd MMMM yyyy", {
                       locale: ar,
                     })}
                   </TableCell>
-                  <TableCell>{order.area}</TableCell>
-                  <TableCell className="font-bold text-blue-600">
+                  <TableCell className="text-slate-600 font-medium">{order.area}</TableCell>
+                  <TableCell className="font-bold text-indigo-600">
                     {order.totalAmount} ج.م
                   </TableCell>
                   <TableCell>

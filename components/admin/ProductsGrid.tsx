@@ -30,15 +30,15 @@ const ProductsGrid = () => {
   return (
     <>
       {products?.length === 0 && (
-        <div className="text-center py-20 bg-white rounded-xl border-2 border-dashed border-slate-200">
-          <div className="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <ShoppingBag className="h-10 w-10 text-slate-300" />
+        <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 shadow-sm">
+          <div className="bg-slate-50 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-5 border border-slate-100">
+            <ShoppingBag className="h-8 w-8 text-slate-400" strokeWidth={1.5} />
           </div>
-          <h3 className="text-lg font-medium text-slate-900">
+          <h3 className="text-xl font-black text-slate-900 tracking-tight">
             قائمة المنتجات فارغة
           </h3>
-          <p className="text-slate-500 text-sm max-w-xs mx-auto mt-2">
-            لم تقم بإضافة أي عروض بعد. اضغط على زر "إضافة عرض جديد" للبدء.
+          <p className="text-slate-500 font-medium max-w-xs mx-auto mt-2">
+            لم تقم بإضافة أي منتجات بعد. اضغط على زر "إضافة منتج جديد" للبدء.
           </p>
         </div>
       )}
@@ -74,71 +74,71 @@ const ProductCard = ({
 
   return (
     <Card
-      className={`group overflow-hidden border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 bg-white ${
+      className={`group overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 bg-white rounded-3xl ${
         !product.inStock ? "opacity-70 grayscale-[0.3]" : ""
       }`}
     >
-      <div className="relative h-56 w-full overflow-hidden">
+      <div className="relative h-56 w-full overflow-hidden bg-slate-50/50">
         <Image
           src={product.images?.[0] || product.image || ""}
           alt={product.name}
           fill
-          className="object-contain p-3 transition-transform duration-500 group-hover:scale-110"
+          className="object-contain p-4 transition-transform duration-700 group-hover:scale-105"
         />
         {!product.inStock && (
-          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center">
-            <span className="bg-red-500 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-lg">
+          <div className="absolute inset-0 bg-white/40 backdrop-blur-sm flex items-center justify-center">
+            <span className="bg-red-500 text-white px-4 py-1.5 rounded-xl text-sm font-bold shadow-lg">
               غير متوفر
             </span>
           </div>
         )}
         {product.images?.length > 1 && (
-          <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
+          <div className="absolute bottom-3 right-3 bg-slate-900/60 backdrop-blur-md text-white text-[11px] px-2.5 py-1 rounded-lg font-bold">
             {product.images.length} صور
           </div>
         )}
-        <div className="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full shadow-sm text-sm font-black text-indigo-700 border border-white/50">
-          {product.price} <span className="text-[10px] text-slate-500 uppercase">ج.م / {product.unit}</span>
+        <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-xl shadow-sm text-sm font-black text-indigo-600 border border-slate-200/50">
+          {product.price} <span className="text-[10px] text-slate-500 uppercase font-bold">ج.م / {product.unit}</span>
         </div>
       </div>
-      <CardHeader className="flex flex-row items-center justify-between pb-2 pt-4 px-5">
-        <CardTitle className="text-xl font-bold text-slate-800 line-clamp-1">{product.name}</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between pb-3 pt-5 px-6">
+        <CardTitle className="text-xl font-black text-slate-900 line-clamp-1 tracking-tight">{product.name}</CardTitle>
         <Switch
-          className="flex-row-reverse"
+          className="flex-row-reverse shadow-sm"
           checked={product.inStock}
           onCheckedChange={toggleStock}
         />
       </CardHeader>
-      <CardContent className="px-5 pb-4">
-        <p className="text-sm text-slate-500 mt-1">
+      <CardContent className="px-6 pb-5">
+        <p className="text-sm font-medium text-slate-500">
           {product.inStock ? "المنتج متاح للطلب" : "المنتج غير متاح حالياً"}
         </p>
       </CardContent>
-      <CardFooter className="flex justify-between border-t border-slate-100 p-4 bg-slate-50/50">
+      <CardFooter className="flex justify-between border-t border-slate-100 p-5 bg-slate-50/50 mt-auto">
         <EditProductPopUp product={product} />
 
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="sm" className="text-slate-400 hover:text-red-600 hover:bg-red-50">
-              <Trash2 className="ml-1 h-4 w-4" /> حذف
+            <Button variant="ghost" size="sm" className="text-slate-400 font-semibold hover:text-red-600 hover:bg-red-50 rounded-xl px-3 transition-colors">
+              <Trash2 className="ml-1.5 h-4 w-4" /> حذف
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent className="text-right" dir="rtl">
+          <AlertDialogContent className="text-right bg-white border-slate-200 rounded-2xl" dir="rtl">
             <AlertDialogHeader>
-              <AlertDialogTitle>هل أنت متأكد تماماً؟</AlertDialogTitle>
-              <AlertDialogDescription>
+              <AlertDialogTitle className="text-slate-900 font-black">هل أنت متأكد تماماً؟</AlertDialogTitle>
+              <AlertDialogDescription className="text-slate-500 font-medium leading-relaxed">
                 سيتم حذف المنتج "{product.name}" نهائياً من القائمة ولا يمكن
                 التراجع عن هذا الإجراء.
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter className="flex gap-2">
-              <AlertDialogCancel className="mt-0">إلغاء</AlertDialogCancel>
+            <AlertDialogFooter className="flex gap-2 flex-row-reverse mt-4">
               <AlertDialogAction
                 onClick={() => onDelete(product._id)}
-                className="bg-red-600 hover:bg-red-700"
+                className="bg-red-600 hover:bg-red-700 font-bold shadow-sm"
               >
                 تأكيد الحذف
               </AlertDialogAction>
+              <AlertDialogCancel className="mt-0 bg-white border-slate-200 text-slate-700 font-semibold hover:bg-slate-50">إلغاء</AlertDialogCancel>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
