@@ -23,7 +23,7 @@ import {
 export default function OffersPage() {
   const { offers, isLoading, deleteOffer } = useOffers();
 
-  if (isLoading) return <GlobalSkeletonLoader type="cards" />;
+  if (isLoading) return <GlobalSkeletonLoader />;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700" dir="rtl">

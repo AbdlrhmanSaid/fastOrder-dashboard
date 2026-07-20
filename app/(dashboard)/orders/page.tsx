@@ -67,7 +67,7 @@ export default function OrdersPage() {
   };
 
   if (isLoading)
-    return <GlobalSkeletonLoader type="table" />;
+    return <GlobalSkeletonLoader />;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700" dir="rtl">

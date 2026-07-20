@@ -1,64 +1,29 @@
-import { Skeleton } from "@/components/ui/skeleton";
+"use client";
 
-export default function GlobalSkeletonLoader({ type = "table" }: { type?: "table" | "cards" | "dashboard" }) {
-  if (type === "dashboard") {
-    return (
-      <div className="space-y-8" dir="rtl">
-        <div className="flex justify-between items-end">
-          <div>
-            <Skeleton className="h-10 w-48 mb-2 bg-slate-200/60" />
-            <Skeleton className="h-5 w-64 bg-slate-200/60" />
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-36 w-full rounded-2xl bg-white border border-slate-100 shadow-sm" />
-          ))}
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Skeleton className="h-96 lg:col-span-2 rounded-3xl bg-white border border-slate-100 shadow-sm" />
-          <Skeleton className="h-96 rounded-3xl bg-white border border-slate-100 shadow-sm" />
-        </div>
-      </div>
-    );
-  }
+import { Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 
-  if (type === "cards") {
-    return (
-      <div className="space-y-8" dir="rtl">
-        <div className="flex justify-between items-end mb-8">
-          <div>
-            <Skeleton className="h-10 w-48 mb-2 bg-slate-200/60" />
-            <Skeleton className="h-5 w-64 bg-slate-200/60" />
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <Skeleton key={i} className="h-[340px] w-full rounded-2xl bg-white border border-slate-100 shadow-sm" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // Default Table layout
+export default function GlobalSkeletonLoader() {
   return (
-    <div className="space-y-8" dir="rtl">
-      <div className="flex justify-between items-end mb-8">
-        <div>
-          <Skeleton className="h-10 w-48 mb-2 bg-slate-200/60" />
-          <Skeleton className="h-5 w-64 bg-slate-200/60" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-50/80 backdrop-blur-sm" dir="rtl">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        transition={{ duration: 0.3 }}
+        className="flex flex-col items-center justify-center p-8 bg-white rounded-3xl shadow-xl border border-slate-100 max-w-sm w-full"
+      >
+        <div className="relative flex items-center justify-center mb-6">
+          <div className="absolute inset-0 bg-indigo-100 rounded-full animate-ping opacity-20"></div>
+          <div className="bg-indigo-50 p-4 rounded-full border border-indigo-100 relative z-10">
+            <Loader2 className="w-12 h-12 text-indigo-600 animate-spin" />
+          </div>
         </div>
-      </div>
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <Skeleton className="h-10 flex-1 rounded-xl bg-white border border-slate-100 shadow-sm" />
-        <Skeleton className="h-10 w-full md:w-64 rounded-xl bg-white border border-slate-100 shadow-sm" />
-      </div>
-      <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-4 shadow-sm">
-        {[...Array(6)].map((_, i) => (
-          <Skeleton key={i} className="h-16 w-full rounded-xl bg-slate-50 border border-slate-100" />
-        ))}
-      </div>
+        <h3 className="text-xl font-black text-slate-900 mb-2 tracking-tight">جاري التحميل...</h3>
+        <p className="text-sm font-medium text-slate-500 text-center">
+          يرجى الانتظار بينما نقوم بتهيئة البيانات وعرض لوحة التحكم الخاصة بك
+        </p>
+      </motion.div>
     </div>
   );
 }

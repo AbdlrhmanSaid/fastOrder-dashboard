@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import EditProductPopUp from "./EditProductPopUp";
 import { Switch } from "@/components/ui/switch";
+import { motion, AnimatePresence } from "framer-motion";
 
 const ProductsGrid = () => {
   const { products, deleteProduct } = useProducts();
@@ -42,15 +43,29 @@ const ProductsGrid = () => {
           </p>
         </div>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {products?.map((product: any) => (
-          <ProductCard
-            key={product._id}
-            product={product}
-            onDelete={deleteProduct}
-          />
-        ))}
-      </div>
+      <motion.div 
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
+        <AnimatePresence>
+          {products?.map((product: any, idx: number) => (
+            <motion.div
+              key={product._id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ delay: idx * 0.05, duration: 0.3 }}
+              layout
+            >
+              <ProductCard
+                product={product}
+                onDelete={deleteProduct}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </motion.div>
     </>
   );
 };
@@ -62,19 +77,17 @@ const ProductCard = ({
   product: any;
   onDelete: any;
 }) => {
-  // استدعاء دالة التحديث هنا لتكون متاحة للكارت
   const { updateProduct } = useProducts();
 
   const toggleStock = (checked: boolean) => {
     const formData = new FormData();
     formData.append("inStock", String(checked));
-    // نرسل الـ id والحالة الجديدة للباك إند
     updateProduct({ id: product._id, data: formData });
   };
 
   return (
     <Card
-      className={`group overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 bg-white rounded-3xl ${
+      className={`group h-full flex flex-col overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 bg-white rounded-3xl ${
         !product.inStock ? "opacity-70 grayscale-[0.3]" : ""
       }`}
     >
@@ -97,19 +110,19 @@ const ProductCard = ({
             {product.images.length} صور
           </div>
         )}
-        <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-xl shadow-sm text-sm font-black text-indigo-600 border border-slate-200/50">
+        <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-xl shadow-sm text-sm font-black text-blue-600 border border-slate-200/50">
           {product.price} <span className="text-[10px] text-slate-500 uppercase font-bold">ج.م / {product.unit}</span>
         </div>
       </div>
       <CardHeader className="flex flex-row items-center justify-between pb-3 pt-5 px-6">
         <CardTitle className="text-xl font-black text-slate-900 line-clamp-1 tracking-tight">{product.name}</CardTitle>
         <Switch
-          className="flex-row-reverse shadow-sm"
+          className="flex-row-reverse shadow-sm data-[state=checked]:bg-blue-600"
           checked={product.inStock}
           onCheckedChange={toggleStock}
         />
       </CardHeader>
-      <CardContent className="px-6 pb-5">
+      <CardContent className="px-6 pb-5 flex-1">
         <p className="text-sm font-medium text-slate-500">
           {product.inStock ? "المنتج متاح للطلب" : "المنتج غير متاح حالياً"}
         </p>

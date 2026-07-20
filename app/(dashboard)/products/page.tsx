@@ -9,7 +9,7 @@ export default function ProductsPage() {
   const { isLoading } = useProducts();
 
   if (isLoading) {
-    return <GlobalSkeletonLoader type="cards" />;
+    return <GlobalSkeletonLoader />;
   }
 
   return (

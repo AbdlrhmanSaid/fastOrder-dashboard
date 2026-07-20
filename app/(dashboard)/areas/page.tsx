@@ -9,7 +9,7 @@ export default function AreasPage() {
   const { isLoading } = useAreas();
 
   if (isLoading) {
-    return <GlobalSkeletonLoader type="table" />;
+    return <GlobalSkeletonLoader />;
   }
 
   return (
